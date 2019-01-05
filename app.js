@@ -1,6 +1,8 @@
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const mongoose = require('mongoose');
+const flash = require('connect-flash');
+const session = require('express-session');
 
 const app = express();
 
@@ -22,6 +24,26 @@ app.set('view engine', 'ejs');
 
 // Bodyparser (req.body)
 app.use(express.urlencoded({ extended: true }));
+
+// Express session
+app.use(
+  session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
+  })
+);
+
+// Connect flash
+app.use(flash());
+
+// Global Vars for our flash messages
+// As we redirect to login, we stored flash messages in the session to call them once redirected
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  next();
+});
 
 // Routes
 app.use('/', require('./routes/index'));
